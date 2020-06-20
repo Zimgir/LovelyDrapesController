@@ -14,31 +14,10 @@
 #error "BLE manager not defined!"
 #endif
 
-#define LOOPBACK
-#ifdef LOOPBACK
-#if NUM_IMPORT_SIGNALS != NUM_EXPORT_SIGNALS
-#error "NUM_IMPORT_SIGNALS != NUM_EXPORT_SIGNALS"
-#endif
-#endif
-
-typedef struct
-{
-  uint32_t id;
-  uint32_t trig;
-} import_input_t;
-
-typedef struct
-{
-  uint32_t id;
-  uint32_t pin;
-  uint32_t trig;
-  unsigned long trig_t0;
-} local_led_t;
-
 LineSensorManager::input_map_t line_input_map = {.inputs = {
                                                      {.id = 0, .pin = A7},
-                                                     /*{.id = 1, .pin = 10},*/
-                                                     /*{.id = 2, .pin = A1}*/}};
+                                                     {.id = 1, .pin = 10},
+                                                     {.id = 2, .pin = A1}}};
 
 CapTouchSensorManager::input_map_t cap_input_map = {.inputs = {
                                                         {.pin = 11,
@@ -46,8 +25,8 @@ CapTouchSensorManager::input_map_t cap_input_map = {.inputs = {
 
 LedManager::output_map_t led_output_map = {.outputs = {
                                                {.id = 0, .pin = 2},
-                                               /*{.id = 1, .pin = 3},*/
-                                               /*{.id = 2, .pin = 4},*/
+                                               {.id = 1, .pin = 3},
+                                               {.id = 2, .pin = 4},
                                                {.id = 3, .pin = 5},
                                                {.id = 4, .pin = 6},
                                                {.id = 5, .pin = 12}}};
@@ -65,13 +44,16 @@ trigger_list_t import_triggers;
 
 void setup()
 {
-  BLINK_FIXED(3, 200);
+  BLINK_RGB(3, 50);
   LOG_BEGIN();
 
   ble_manager.begin(&ble_id_map);
+
+#ifdef BLE_BUILD_SERVER
   line_sensor_manager.begin(&line_input_map);
   cap_touch_sensor_manager.begin(&cap_input_map);
   led_manager.begin(&led_output_map);
+#endif
 
   LOGL("setup: ok");
 }
@@ -81,23 +63,31 @@ void loop()
   export_triggers.size = 0;
   import_triggers.size = 0;
 
+#ifdef BLE_BUILD_SERVER
   line_sensor_manager.getTriggers(&export_triggers);
   cap_touch_sensor_manager.getTriggers(&export_triggers);
+#endif
 
+  ble_manager.getTriggers(&import_triggers);
+
+#ifdef BLE_BUILD_SERVER
   ble_manager.setTriggers(&export_triggers);
+#else
+  ble_manager.setTriggers(&import_triggers);
+#endif
 
-  ble_manager.getTriggers(&import_triggers); 
-  
-#ifdef LOOPBACK
+#ifdef BLE_BUILD_SERVER
+#ifdef LOOPBACK_ENABLE
   led_manager.setTriggers(&export_triggers);
 #else
   led_manager.setTriggers(&import_triggers);
 #endif
-
   led_manager.update();
+#endif
+
   ble_manager.update();
 
-#ifdef LOG_ENABLE
-  //delay(1000);
+#if defined(LOG_ENABLE) && defined(LOG_DELAY_MAIN)
+  delay(500);
 #endif
 }

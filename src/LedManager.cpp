@@ -3,14 +3,14 @@
 
 #include "LedManager.hpp"
 
-LedManager::led_t LedManager::leds[LEDS_NUM];
+LedManager::led_t LedManager::leds[LED_NUM];
 LedManager::pwm_t LedManager::pwms[PWM_MAX_NUM];
 
 void LedManager::begin(output_map_t *map)
 {
     LOG("LedManager::begin ...");
 
-    for (int i = 0; i < LEDS_NUM; ++i)
+    for (int i = 0; i < LED_NUM; ++i)
     {
         leds[i].id = map->outputs[i].id;
         leds[i].pin = map->outputs[i].pin;
@@ -34,7 +34,7 @@ void LedManager::setTriggers(trigger_list_t *triggers)
 {
     for (int trig_idx = 0; trig_idx < triggers->size; ++trig_idx)
     {
-        for (int sig_idx = 0; sig_idx < LEDS_NUM; ++sig_idx)
+        for (int sig_idx = 0; sig_idx < LED_NUM; ++sig_idx)
         {
             if (triggers->ids[trig_idx] == leds[sig_idx].id)
             {
@@ -85,12 +85,12 @@ void LedManager::pwmWrite(pin_size_t pin, int val)
 
     if (pwms[selectd_index].pwm == NULL)
     {
-        LOGVL(selectd_index);
+        LOGVL(selectd_index,DEC);
         is_new_pwm = true;
     }
     else if (pwms[selectd_index].pin != pin)
     {
-        LOGVL(selectd_index);
+        LOGVL(selectd_index,DEC);
         LOGL("[DELETE]");
         delete pwms[selectd_index].pwm;
         pwms[selectd_index].pwm = NULL;
@@ -100,7 +100,7 @@ void LedManager::pwmWrite(pin_size_t pin, int val)
 
     if (is_new_pwm)
     {
-        LOGVL(is_new_pwm);
+        LOGVL(is_new_pwm,DEC);
         pwms[selectd_index].pin = pin;
         pwms[selectd_index].pwm = new mbed::PwmOut(digitalPinToPinName(pin));
         pwms[selectd_index].pwm->period_ms(2); //500Hz
@@ -115,7 +115,7 @@ void LedManager::update(void)
     unsigned long t1, dt, fade_time;
     uint32_t pwm_val;
 
-    for (int i = 0; i < LEDS_NUM; ++i)
+    for (int i = 0; i < LED_NUM; ++i)
     {
 
         if (!leds[i].trig)
@@ -144,7 +144,7 @@ void LedManager::update(void)
 
         pwm_val = map(fade_time, 0, LED_FADE_MS, 0, PWM_RES);
 
-        analogWrite(leds[i].pin, pwm_val); // this crashes if used on more than 4 different pins
-        //pwmWrite(leds[i].pin, pwm_val); // this also crashes ffs :(
+        //analogWrite(leds[i].pin, pwm_val); // this crashes if used on more than 4 different pins
+        pwmWrite(leds[i].pin, pwm_val);
     }
 }

@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#if 0
 //#include <nrfx_timer.h>
 #include "utils.hpp"
 #include "timer.hpp"
@@ -193,4 +194,5 @@ void nrfx_timer_4_irq_handler_v(void)
 
 #ifdef __cplusplus
 }
+#endif
 #endif

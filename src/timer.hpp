@@ -1,5 +1,6 @@
 #pragma once
 
+#if 0
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -14,4 +15,5 @@ void timer_stop(void);
 
 #ifdef __cplusplus
 }
+#endif
 #endif

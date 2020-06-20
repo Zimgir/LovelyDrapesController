@@ -16,11 +16,11 @@ public:
     };
 
 private:
-    struct characteristic_t
+    struct trig_bit_t
     {
         uint8_t id;
         uint8_t trig;
-        BLEByteCharacteristic c;
+        uint8_t bit;
     };
 
 public:
@@ -34,12 +34,21 @@ public:
     virtual uint32_t getIRQCount() override { return 0; };
 
 private:
+
+    static void reset();
+    
     static BLEService signature_service;
-    static BLEUnsignedLongCharacteristic signature_char;
+    static BLEUnsignedLongCharacteristic client_signature_c;
+    static BLEUnsignedLongCharacteristic server_signature_c;
 
     static BLEService export_service;
-    static characteristic_t export_chars[EXPORT_NUM_SIGNALS];
+    static BLEUnsignedLongCharacteristic export_set_c;
+    static BLEUnsignedLongCharacteristic export_clear_c;
 
     static BLEService import_service;
-    static characteristic_t import_chars[IMPORT_NUM_SIGNALS];
+    static BLEUnsignedLongCharacteristic import_set_c;
+    static BLEUnsignedLongCharacteristic import_clear_c;
+
+    static trig_bit_t export_triggers[EXPORT_NUM_SIGNALS];
+    static trig_bit_t import_triggers[IMPORT_NUM_SIGNALS];
 };

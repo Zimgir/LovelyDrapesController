@@ -15,7 +15,7 @@ public:
 
     struct output_map_t
     {
-        output_t outputs[LEDS_NUM];
+        output_t outputs[LED_NUM];
     };
 
 private:
@@ -41,7 +41,7 @@ public:
     void update(void) override;
 
 private:
-    static led_t leds[LEDS_NUM];
+    static led_t leds[LED_NUM];
     static pwm_t pwms[PWM_MAX_NUM];
 
     static void pwmWrite(pin_size_t pin, int val);

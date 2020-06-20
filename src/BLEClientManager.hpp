@@ -1,4 +1,5 @@
 #pragma once
+
 #include <Arduino.h>
 #include <ArduinoBLE.h>
 
@@ -16,11 +17,11 @@ public:
     };
 
 private:
-    struct characteristic_t
+    struct trig_bit_t
     {
         uint8_t id;
         uint8_t trig;
-        BLEByteCharacteristic c;
+        uint8_t bit;
     };
 
 public:
@@ -34,9 +35,13 @@ public:
     virtual uint32_t getIRQCount() override { return 0; };
 
 private:
+    bool connect();
+    bool is_connected();
+    bool update_export();
+    bool update_import();
 
-    static BLEService export_service;
-    static BLEService import_service;
-    static characteristic_t export_chars[EXPORT_NUM_SIGNALS];
-    static characteristic_t import_chars[IMPORT_NUM_SIGNALS];
+    BLEDevice peripheral;
+
+    static trig_bit_t export_triggers[EXPORT_NUM_SIGNALS];
+    static trig_bit_t import_triggers[IMPORT_NUM_SIGNALS];
 };
