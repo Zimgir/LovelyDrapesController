@@ -6,6 +6,8 @@
 #include "OutputManager.hpp"
 #include "InputManager.hpp"
 
+#ifdef BLE_BUILD_CLIENT
+
 class BLEClientManager : public OutputManager, public InputManager
 {
 
@@ -45,3 +47,5 @@ private:
     static trig_bit_t export_triggers[EXPORT_NUM_SIGNALS];
     static trig_bit_t import_triggers[IMPORT_NUM_SIGNALS];
 };
+
+#endif

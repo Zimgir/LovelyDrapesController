@@ -25,12 +25,14 @@ private:
         unsigned long trig_t0;
     };
 
+#ifdef LED_PWM_RESET_WORKAROUND
     struct pwm_t
     {
         uint8_t pin;
         unsigned long last_tt;
-        mbed::PwmOut* pwm;
+        mbed::PwmOut *pwm;
     };
+#endif
 
 public:
     LedManager() {}
@@ -42,7 +44,9 @@ public:
 
 private:
     static led_t leds[LED_NUM];
-    static pwm_t pwms[PWM_MAX_NUM];
 
+#ifdef LED_PWM_RESET_WORKAROUND
+    static pwm_t pwms[PWM_MAX_NUM];
     static void pwmWrite(pin_size_t pin, int val);
+#endif
 };

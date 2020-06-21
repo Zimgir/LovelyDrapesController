@@ -43,6 +43,6 @@ private:
     static uint32_t irq_count;
 
     DEC_LINE_IRQ_HANDLER(0);
-    //DEC_LINE_IRQ_HANDLER(1);
-    //DEC_LINE_IRQ_HANDLER(2);
+    DEC_LINE_IRQ_HANDLER(1);
+    DEC_LINE_IRQ_HANDLER(2);
 };

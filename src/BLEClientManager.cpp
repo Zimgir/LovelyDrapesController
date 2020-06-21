@@ -1,7 +1,8 @@
 #include <Arduino.h>
-#include "utility/HCI.h"
 
 #include "BLEClientManager.hpp"
+
+#ifdef BLE_BUILD_CLIENT
 
 BLEClientManager::trig_bit_t BLEClientManager::export_triggers[EXPORT_NUM_SIGNALS];
 BLEClientManager::trig_bit_t BLEClientManager::import_triggers[IMPORT_NUM_SIGNALS];
@@ -26,6 +27,8 @@ void BLEClientManager::begin(id_map_t *map)
         import_triggers[i].trig = 0;
         import_triggers[i].bit = i;
     }
+
+    WDT_ENABLE(BLE_CLIENT_WDT_TIMEOUT_SEC);
 
     LOGL("ok");
 }
@@ -187,6 +190,7 @@ void BLEClientManager::update()
 
         if (millis() - sig_write_t0 > BLE_SIGNATURE_WRITE_DELAY_MS)
         {
+            WDT_RESET(); // reset WDT when writing signature
             BLECharacteristic c = peripheral.characteristic(BLE_UUID_CLIENT_SIGNATURE);
             c.writeValue((uint32_t)BLE_CLIENT_SIGNATURE);
             sig_write_t0 = millis();
@@ -210,7 +214,7 @@ bool BLEClientManager::connect()
 
     BLE.scanForUuid(BLE_UUID_SIGNATURE_SERVICE);
 
-    delay(BLE_SCAN_WAIT_MS);
+    delay(BLE_SCAN_WAIT_MS); 
 
     peripheral = BLE.available();
 
@@ -306,6 +310,8 @@ err:
     peripheral.disconnect();
     BLINK_WAIT(peripheral.connected());
     BLE.stopScan();
-    
+
     return false;
 }
+
+#endif

@@ -9,6 +9,21 @@ typedef enum
     ERR_BLE_BEGIN
 } ret_t;
 
+#define WDT_ENABLE(timeout)                                                               \
+    do                                                                                    \
+    {                                                                                     \
+        NRF_WDT->CONFIG = 0x9;             /* Configure WDT to run when CPU is asleep */ \
+        NRF_WDT->CRV = timeout * 32768 + 1; /* timeout (sec) = (CRV-1)/32768 */           \
+        NRF_WDT->RREN = 0x01;               /* Enable the RR[0] reload register */        \
+        NRF_WDT->TASKS_START = 1;           /* Start WDT */                               \
+    } while (0)
+
+#define WDT_RESET(timeout)                 \
+    do                                     \
+    {                                      \
+        NRF_WDT->RR[0] = WDT_RR_RR_Reload; \
+    } while (0)
+
 #define LOG_SERIAL_BAUD 115200
 
 #ifdef LOG_ENABLE
@@ -76,7 +91,7 @@ typedef enum
 #define LOGF(m, f)
 #define LOGFL(m, f)
 #define LOGV(val, f)
-#define LOGVL(val, f) ,
+#define LOGVL(val, f)
 #endif
 
 #define BLINK_FIXED(count, delay_ms)         \
@@ -120,42 +135,40 @@ typedef enum
 
 #define BLINK_WAIT_DELAY 200
 
-#define BLINK_WAIT(condition)                \
-    do                                       \
-    {                                        \
-                                             \
-        while (condition)                    \
-        {                                    \
-            digitalWrite(LED_BUILTIN, HIGH); \
-            delay(BLINK_WAIT_DELAY);         \
-            digitalWrite(LED_BUILTIN, LOW);  \
-            delay(BLINK_WAIT_DELAY);         \
-        }                                    \
-                                             \
+#define BLINK_WAIT(condition)         \
+    do                                \
+    {                                 \
+                                      \
+        while (condition)             \
+        {                             \
+            digitalWrite(LEDG, LOW);  \
+            delay(BLINK_WAIT_DELAY);  \
+            digitalWrite(LEDG, HIGH); \
+            delay(BLINK_WAIT_DELAY);  \
+        }                             \
+                                      \
     } while (0)
 
 #define BLINK_BUG_ACTIVE_DELAY 500
 #define BLINK_BUG_SILENT_DELAY 3000
 
-#define BLINK_BUG(code)                          \
-    do                                           \
-    {                                            \
-        LOG("BUG at ");                          \
-        LOG(__func__);                           \
-        LOG(":");                                \
-        LOGL(__LINE__);                          \
-                                                 \
-        while (1)                                \
-        {                                        \
-            for (uint8_t i = 0; i < code; ++i)   \
-            {                                    \
-                digitalWrite(LED_BUILTIN, HIGH); \
-                delay(BLINK_BUG_ACTIVE_DELAY);   \
-                digitalWrite(LED_BUILTIN, LOW);  \
-                delay(BLINK_BUG_ACTIVE_DELAY);   \
-            }                                    \
-            delay(BLINK_BUG_SILENT_DELAY);       \
-        }                                        \
+#define BLINK_BUG(code)                        \
+    do                                         \
+    {                                          \
+        LOG("BUG at ");                        \
+        LOG(__func__);                         \
+        LOG(":");                              \
+        LOGL(__LINE__);                        \
+                                               \
+        while (1)                              \
+        {                                      \
+            for (uint8_t i = 0; i < code; ++i) \
+            {                                  \
+                digitalWrite(LEDR, LOW);       \
+                delay(BLINK_BUG_ACTIVE_DELAY); \
+                digitalWrite(LEDR, HIGH);      \
+                delay(BLINK_BUG_ACTIVE_DELAY); \
+            }                                  \
+            delay(BLINK_BUG_SILENT_DELAY);     \
+        }                                      \
     } while (0)
-
-void log_init();

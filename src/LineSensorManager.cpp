@@ -12,13 +12,13 @@ uint32_t LineSensorManager::irq_count = 0;
     }
 
 DEF_LINE_IRQ_HANDLER(0);
-//DEF_LINE_IRQ_HANDLER(1);
-//DEF_LINE_IRQ_HANDLER(2);
+DEF_LINE_IRQ_HANDLER(1);
+DEF_LINE_IRQ_HANDLER(2);
 
 pin_irq_handler_t LineSensorManager::irq_handlers[LINE_NUM_SENSORS] = {
     LINE_IRQ_HANDLER(0),
-    /*LINE_IRQ_HANDLER(1),*/
-    /*LINE_IRQ_HANDLER(2)*/};
+    LINE_IRQ_HANDLER(1),
+    LINE_IRQ_HANDLER(2)};
 
 void LineSensorManager::begin(input_map_t *map)
 {

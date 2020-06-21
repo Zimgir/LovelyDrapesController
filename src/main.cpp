@@ -31,8 +31,8 @@ LedManager::output_map_t led_output_map = {.outputs = {
                                                {.id = 4, .pin = 6},
                                                {.id = 5, .pin = 12}}};
 
-BLEManager::id_map_t ble_id_map = {.exports = {0, 3, 4, 5},
-                                   .imports = {0, 3, 4, 5}};
+BLEManager::id_map_t ble_id_map = {.exports = {0, 1, 2, 3, 4, 5},
+                                   .imports = {0, 1, 2, 3, 4, 5}};
 
 BLEManager ble_manager;
 LineSensorManager line_sensor_manager;
@@ -55,7 +55,7 @@ void setup()
   led_manager.begin(&led_output_map);
 #endif
 
-  LOGL("setup: ok");
+  LOGL("setup: ...ok");
 }
 
 void loop()

@@ -5,6 +5,8 @@
 #include "OutputManager.hpp"
 #include "InputManager.hpp"
 
+#ifdef BLE_BUILD_SERVER
+
 class BLEServerManager : public OutputManager, public InputManager
 {
 
@@ -35,8 +37,6 @@ public:
 
 private:
 
-    static void reset();
-    
     static BLEService signature_service;
     static BLEUnsignedLongCharacteristic client_signature_c;
     static BLEUnsignedLongCharacteristic server_signature_c;
@@ -52,3 +52,5 @@ private:
     static trig_bit_t export_triggers[EXPORT_NUM_SIGNALS];
     static trig_bit_t import_triggers[IMPORT_NUM_SIGNALS];
 };
+
+#endif

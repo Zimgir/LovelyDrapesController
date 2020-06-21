@@ -4,7 +4,10 @@
 #include "LedManager.hpp"
 
 LedManager::led_t LedManager::leds[LED_NUM];
+
+#ifdef LED_PWM_RESET_WORKAROUND
 LedManager::pwm_t LedManager::pwms[PWM_MAX_NUM];
+#endif
 
 void LedManager::begin(output_map_t *map)
 {
@@ -20,12 +23,14 @@ void LedManager::begin(output_map_t *map)
         pinMode(leds[i].pin, OUTPUT);
     }
 
+#ifdef LED_PWM_RESET_WORKAROUND
     for (int i = 0; i < PWM_MAX_NUM; ++i)
     {
         pwms[i].pin = 0xFF;
         pwms[i].last_tt = 0;
         pwms[i].pwm = NULL;
     }
+#endif
 
     LOGL("ok");
 }
@@ -52,6 +57,10 @@ void LedManager::setTriggers(trigger_list_t *triggers)
     }
 }
 
+#ifdef LED_PWM_RESET_WORKAROUND
+/* This is attempted workaround to allocate and delte pwm driver to reset it on a another pin
+   Unfortunately this doesn't work and some state is left which still triggers
+   a BUG when used on more than 4 different pins */
 void LedManager::pwmWrite(pin_size_t pin, int val)
 {
     float percent = (float)val / (float)(1 << PWM_RES_BITS);
@@ -85,12 +94,12 @@ void LedManager::pwmWrite(pin_size_t pin, int val)
 
     if (pwms[selectd_index].pwm == NULL)
     {
-        LOGVL(selectd_index,DEC);
+        LOGVL(selectd_index, DEC);
         is_new_pwm = true;
     }
     else if (pwms[selectd_index].pin != pin)
     {
-        LOGVL(selectd_index,DEC);
+        LOGVL(selectd_index, DEC);
         LOGL("[DELETE]");
         delete pwms[selectd_index].pwm;
         pwms[selectd_index].pwm = NULL;
@@ -100,7 +109,7 @@ void LedManager::pwmWrite(pin_size_t pin, int val)
 
     if (is_new_pwm)
     {
-        LOGVL(is_new_pwm,DEC);
+        LOGVL(is_new_pwm, DEC);
         pwms[selectd_index].pin = pin;
         pwms[selectd_index].pwm = new mbed::PwmOut(digitalPinToPinName(pin));
         pwms[selectd_index].pwm->period_ms(2); //500Hz
@@ -109,6 +118,7 @@ void LedManager::pwmWrite(pin_size_t pin, int val)
     pwms[selectd_index].last_tt = millis();
     pwms[selectd_index].pwm->write(percent);
 }
+#endif
 
 void LedManager::update(void)
 {
@@ -144,7 +154,16 @@ void LedManager::update(void)
 
         pwm_val = map(fade_time, 0, LED_FADE_MS, 0, PWM_RES);
 
-        //analogWrite(leds[i].pin, pwm_val); // this crashes if used on more than 4 different pins
-        pwmWrite(leds[i].pin, pwm_val);
+        if (i < 4)
+        {
+            analogWrite(leds[i].pin, pwm_val); // this crashes if used on more than 4 different pins
+        }
+        else
+        {
+            if (pwm_val > 0)
+                digitalWrite(leds[i].pin, HIGH);
+            else
+                digitalWrite(leds[i].pin, LOW);
+        }
     }
 }

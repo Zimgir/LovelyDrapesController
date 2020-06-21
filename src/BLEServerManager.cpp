@@ -1,7 +1,7 @@
 #include <Arduino.h>
-#include "utility/ATT.h"
 
 #include "BLEServerManager.hpp"
+#ifdef BLE_BUILD_SERVER
 
 BLEService BLEServerManager::signature_service(BLE_UUID_SIGNATURE_SERVICE);
 
@@ -198,8 +198,11 @@ void BLEServerManager::update()
                     LOGFL(client_signature, HEX);
                     saved_connected_mac = "";
                     central.disconnect();
-                    reset();
-                    return;
+
+                    // reset 3 sec after dropping connection because client can cause a bad disconnet bug
+                    digitalWrite(LEDB, HIGH); // turn off connetion LED
+                    WDT_ENABLE(3);
+                    BLINK_WAIT(1);
                 }
             }
             else
@@ -228,9 +231,4 @@ void BLEServerManager::update()
     }
 }
 
-void BLEServerManager::reset()
-{
-    BLE.stopAdvertise();
-    delay(BLE_ADEVRTISE_WAIT_MS);
-    BLE.advertise();
-}
+#endif
